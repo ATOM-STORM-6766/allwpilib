@@ -43,7 +43,7 @@ std::string_view GetResource_rtns_512_png();
 }  // namespace rtns
 
 #define GLFWAPI extern "C"
-GLFWAPI void glfwGetWindowSize(GLFWwindow* window, int* width, int* height);
+GLFWAPI void glfwGetFramebufferSize(GLFWwindow* window, int* width, int* height);
 #define GLFW_DONT_CARE -1
 GLFWAPI void glfwSetWindowSizeLimits(GLFWwindow* window, int minwidth,
                                      int minheight, int maxwidth,
@@ -102,7 +102,7 @@ static void DisplayGui() {
   // fill entire OS window with this window
   ImGui::SetNextWindowPos(ImVec2(0, 0));
   int width, height;
-  glfwGetWindowSize(gui::GetSystemWindow(), &width, &height);
+  glfwGetFramebufferSize(gui::GetSystemWindow(), &width, &height);
 
   ImGui::SetNextWindowSize(ImVec2(width, height));
 

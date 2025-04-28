@@ -116,7 +116,7 @@ static void DisplayGui() {
   // fill entire OS window with this window
   ImGui::SetNextWindowPos(ImVec2(0, 0));
   int width, height;
-  glfwGetWindowSize(gui::GetSystemWindow(), &width, &height);
+  glfwGetFramebufferSize(gui::GetSystemWindow(), &width, &height);
   ImGui::SetNextWindowSize(
       ImVec2(static_cast<float>(width), static_cast<float>(height)));
 

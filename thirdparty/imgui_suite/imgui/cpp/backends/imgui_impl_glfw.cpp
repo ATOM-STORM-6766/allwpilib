@@ -419,6 +419,21 @@ void ImGui_ImplGlfw_WindowFocusCallback(GLFWwindow* window, int focused)
     io.AddFocusEvent(focused != 0);
 }
 
+static void ImGui_ImplGlfw_ScaleMousePos(GLFWwindow* window, double &x, double &y) {
+    // Get Window Size
+    int window_width, window_height;
+    glfwGetWindowSize(window, &window_width, &window_height);
+    if (window_width <= 0 || window_height <= 0) {
+        return;
+    }
+    // Get Framebuffer Size
+    int framebuffer_width, framebuffer_height;
+    glfwGetFramebufferSize(window, &framebuffer_width, &framebuffer_height);
+    // Multiply
+    x *= double(framebuffer_width) / double(window_width);
+    y *= double(framebuffer_height) / double(window_height);
+}
+
 void ImGui_ImplGlfw_CursorPosCallback(GLFWwindow* window, double x, double y)
 {
     ImGui_ImplGlfw_Data* bd = ImGui_ImplGlfw_GetBackendData();
@@ -426,6 +441,7 @@ void ImGui_ImplGlfw_CursorPosCallback(GLFWwindow* window, double x, double y)
         bd->PrevUserCallbackCursorPos(window, x, y);
 
     ImGuiIO& io = ImGui::GetIO();
+    ImGui_ImplGlfw_ScaleMousePos(window, x, y);
     if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
         int window_x, window_y;
@@ -757,10 +773,9 @@ static void ImGui_ImplGlfw_UpdateMouseData()
             {
                 double mouse_x, mouse_y;
                 glfwGetCursorPos(window, &mouse_x, &mouse_y);
+                ImGui_ImplGlfw_ScaleMousePos(window, mouse_x, mouse_y);
                 if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
                 {
-                    // Single viewport mode: mouse position in client window coordinates (io.MousePos is (0,0) when the mouse is on the upper-left corner of the app window)
-                    // Multi-viewport mode: mouse position in OS absolute coordinates (io.MousePos is (0,0) when the mouse is on the upper-left of the primary monitor)
                     int window_x, window_y;
                     glfwGetWindowPos(window, &window_x, &window_y);
                     mouse_x += window_x;
@@ -926,13 +941,9 @@ void ImGui_ImplGlfw_NewFrame()
     IM_ASSERT(bd != nullptr && "Did you call ImGui_ImplGlfw_InitForXXX()?");
 
     // Setup display size (every frame to accommodate for window resizing)
-    int w, h;
     int display_w, display_h;
-    glfwGetWindowSize(bd->Window, &w, &h);
     glfwGetFramebufferSize(bd->Window, &display_w, &display_h);
-    io.DisplaySize = ImVec2((float)w, (float)h);
-    if (w > 0 && h > 0)
-        io.DisplayFramebufferScale = ImVec2((float)display_w / (float)w, (float)display_h / (float)h);
+    io.DisplaySize = ImVec2((float)display_w, (float)display_h);
     if (bd->WantUpdateMonitors)
         ImGui_ImplGlfw_UpdateMonitors();
 
